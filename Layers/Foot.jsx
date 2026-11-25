@@ -16,7 +16,10 @@ const Foot = () => {
   return (
     <footer className="foot">
       <div className="container foot__inner">
-        <Logo size={36} />
+        <div className="foot__brand">
+          <Logo height={38} />
+          <span>{t('tagline')}</span>
+        </div>
 
         <div className="foot__contact">
           <a href={`mailto:${contactInfo.email}`}><Icon name="mail" size={18} /><bdi dir="ltr">{contactInfo.email}</bdi></a>

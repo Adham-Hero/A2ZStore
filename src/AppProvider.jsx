@@ -1,82 +1,57 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AppContext } from './AppContext.js'
 import { translations } from './i18n.js'
-
-const read = (key, fallback) => {
-  try {
-    return localStorage.getItem(key) || fallback
-  } catch {
-    return fallback
-  }
-}
-const write = (key, value) => {
-  try {
-    localStorage.setItem(key, value)
-  } catch {
-    /* storage unavailable: ignore */
-  }
-}
+import { load, save } from './storage.js'
 
 const initialTheme = () =>
-  read('theme', window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  load('theme', window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
 
 export default function AppProvider({ children }) {
   const [theme, setTheme] = useState(initialTheme)
-  const [lang, setLang] = useState(() => read('lang', 'en'))
-  const [cart, setCart] = useState([])
+  const [lang, setLang] = useState(() => load('lang', 'en'))
   const [cartOpen, setCartOpen] = useState(false)
   const [signInOpen, setSignInOpen] = useState(false)
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     const root = document.documentElement
     root.setAttribute('data-theme', theme)
     root.lang = lang
     root.dir = lang === 'ar' ? 'rtl' : 'ltr'
-    write('theme', theme)
-    write('lang', lang)
+    save('theme', theme)
+    save('lang', lang)
   }, [theme, lang])
 
-  const value = useMemo(() => {
-    const t = (key) => translations[lang][key] ?? key
-    const tr = (obj) => obj[lang]
-    const money = (n) =>
-      lang === 'ar'
-        ? `${n.toLocaleString('ar-EG')} ج.م`
-        : `EGP ${n.toLocaleString('en-US')}`
+  useEffect(() => {
+    if (!toast) return
+    const id = setTimeout(() => setToast(null), 2400)
+    return () => clearTimeout(id)
+  }, [toast])
 
-    const addToCart = (item) =>
-      setCart((c) => {
-        const found = c.find((x) => x.id === item.id)
-        return found
-          ? c.map((x) => (x.id === item.id ? { ...x, qty: x.qty + 1 } : x))
-          : [...c, { ...item, qty: 1 }]
-      })
-    const changeQty = (id, delta) =>
-      setCart((c) =>
-        c.map((x) => (x.id === id ? { ...x, qty: x.qty + delta } : x)).filter((x) => x.qty > 0),
-      )
-    const removeItem = (id) => setCart((c) => c.filter((x) => x.id !== id))
+  const notify = useCallback((message, tone = 'ok') => setToast({ message, tone, key: Date.now() }), [])
+
+  const value = useMemo(() => {
+    // t('key', { n: 3 }) replaces {n} in the text
+    const t = (key, params) => {
+      let text = translations[lang][key] ?? key
+      if (params) for (const [k, v] of Object.entries(params)) text = text.replaceAll(`{${k}}`, v)
+      return text
+    }
+    // tr({en, ar}) -> text in the current language (falls back to the other one)
+    const tr = (obj) => (obj ? obj[lang] || obj.en || obj.ar || '' : '')
+    const locale = lang === 'ar' ? 'ar-EG' : 'en-GB'
+    const money = (n) =>
+      lang === 'ar' ? `${Number(n).toLocaleString('ar-EG')} ج.م` : `EGP ${Number(n).toLocaleString('en-US')}`
+    const formatDate = (iso) =>
+      new Date(iso).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' })
 
     return {
-      theme,
-      lang,
-      t,
-      tr,
-      money,
+      theme, lang, t, tr, money, formatDate, notify, toast,
       toggleTheme: () => setTheme((x) => (x === 'dark' ? 'light' : 'dark')),
       toggleLang: () => setLang((x) => (x === 'en' ? 'ar' : 'en')),
-      cart,
-      cartCount: cart.reduce((s, x) => s + x.qty, 0),
-      cartTotal: cart.reduce((s, x) => s + x.qty * x.price, 0),
-      addToCart,
-      changeQty,
-      removeItem,
-      cartOpen,
-      setCartOpen,
-      signInOpen,
-      setSignInOpen,
+      cartOpen, setCartOpen, signInOpen, setSignInOpen,
     }
-  }, [theme, lang, cart, cartOpen, signInOpen])
+  }, [theme, lang, notify, toast, cartOpen, signInOpen])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
