@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+do_it_for_me.txt
 FUNCTIONS.txt
 dist
 dist-ssr
