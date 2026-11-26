@@ -2,19 +2,12 @@ import { Link } from 'react-router-dom'
 import { useApp } from '../src/AppContext.js'
 import { useStore } from '../src/StoreContext.js'
 import { discountOf, isInStock } from '../src/helpers.js'
+import Photo from './Photo.jsx'
 
-// Photo if the admin uploaded one, otherwise the product icon.
+// Product photo (or the branded placeholder until a photo is uploaded).
 export function ProductMedia({ product, className = '' }) {
   const { tr } = useApp()
-  return (
-    <div className={`media ${className}`}>
-      {product.image ? (
-        <img src={product.image} alt={tr(product.name)} loading="lazy" />
-      ) : (
-        <span className="media__icon" aria-hidden="true">{product.icon || '🛍️'}</span>
-      )}
-    </div>
-  )
+  return <Photo src={product.image} alt={tr(product.name)} className={className} />
 }
 
 // Product card with two buttons: View (item page) and Add to cart.

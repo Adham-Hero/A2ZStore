@@ -10,7 +10,6 @@ export default function AppProvider({ children }) {
   const [theme, setTheme] = useState(initialTheme)
   const [lang, setLang] = useState(() => load('lang', 'en'))
   const [cartOpen, setCartOpen] = useState(false)
-  const [signInOpen, setSignInOpen] = useState(false)
   const [toast, setToast] = useState(null)
 
   useEffect(() => {
@@ -24,7 +23,7 @@ export default function AppProvider({ children }) {
 
   useEffect(() => {
     if (!toast) return
-    const id = setTimeout(() => setToast(null), 2400)
+    const id = setTimeout(() => setToast(null), 2600)
     return () => clearTimeout(id)
   }, [toast])
 
@@ -49,9 +48,9 @@ export default function AppProvider({ children }) {
       theme, lang, t, tr, money, formatDate, notify, toast,
       toggleTheme: () => setTheme((x) => (x === 'dark' ? 'light' : 'dark')),
       toggleLang: () => setLang((x) => (x === 'en' ? 'ar' : 'en')),
-      cartOpen, setCartOpen, signInOpen, setSignInOpen,
+      cartOpen, setCartOpen,
     }
-  }, [theme, lang, notify, toast, cartOpen, signInOpen])
+  }, [theme, lang, notify, toast, cartOpen])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

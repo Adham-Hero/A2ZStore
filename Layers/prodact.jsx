@@ -10,10 +10,11 @@ export default function Prodact() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { t, tr, money, notify } = useApp()
-  const { products, categories, addToCart } = useStore()
+  const { products, categories, addToCart, ready } = useStore()
   const [qty, setQty] = useState(1)
 
   const product = products.find((p) => p.id === id)
+  if (!ready) return <div className="container loading" role="status" aria-label={t('common.loading')} />
   if (!product) {
     return (
       <section className="section">
@@ -44,7 +45,7 @@ export default function Prodact() {
         </Link>
 
         <div className="pdp">
-          <ProductMedia product={product} className="media--lg" />
+          <ProductMedia product={product} className="photo-box--lg" />
 
           <div className="pdp__info">
             <h1>{tr(product.name)}</h1>

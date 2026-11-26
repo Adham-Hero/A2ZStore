@@ -1,14 +1,18 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import Photo from './Photo.jsx'
 import { useApp } from '../src/AppContext.js'
 import { useStore } from '../src/StoreContext.js'
 
 // Checkout page: /checkout  (needs a signed-in user, creates the order, reduces the stock)
 export default function Chiickout() {
-  const { t, tr, money, setSignInOpen } = useApp()
-  const { user, cartLines, cartTotal, createOrder } = useStore()
+  const { t, tr, money, notify } = useApp()
+  const { user, cartLines, cartTotal, createOrder, ready } = useStore()
   const [error, setError] = useState('')
   const [done, setDone] = useState(null)
+  const [busy, setBusy] = useState(false)
+
+  if (!ready) return <div className="container loading" role="status" aria-label={t('common.loading')} />
 
   if (done) {
     return (
@@ -37,18 +41,22 @@ export default function Chiickout() {
     )
   }
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     const f = new FormData(e.currentTarget)
-    const result = createOrder({
+    setBusy(true)
+    const result = await createOrder({
       name: f.get('name').trim(),
       phone: f.get('phone').trim(),
       city: f.get('city').trim(),
       address: f.get('address').trim(),
       notes: f.get('notes').trim(),
     })
-    if (result.ok) setDone(result.order)
-    else setError(t(result.error))
+    setBusy(false)
+    if (result.ok) {
+      setDone(result.order)
+      notify(t('checkout.thanks'))
+    } else setError(t(result.error))
   }
 
   return (
@@ -83,12 +91,12 @@ export default function Chiickout() {
                 </select>
               </label>
               {error && <p className="form__error" role="alert">{error}</p>}
-              <button className="btn btn--primary" type="submit">{t('checkout.place')}</button>
+              <button className="btn btn--primary" type="submit" disabled={busy}>{busy ? '…' : t('checkout.place')}</button>
             </form>
           ) : (
             <div className="card empty">
               <p>{t('checkout.signinFirst')}</p>
-              <button className="btn btn--primary" onClick={() => setSignInOpen(true)}>{t('nav.signin')}</button>
+              <Link to="/login?next=/checkout" className="btn btn--primary">{t('nav.signin')}</Link>
             </div>
           )}
 
@@ -96,6 +104,7 @@ export default function Chiickout() {
             <h3>{t('checkout.summary')}</h3>
             {cartLines.map(({ product, qty }) => (
               <div key={product.id} className="summary__line">
+                <Photo src={product.image} alt="" className="photo-box--thumb" />
                 <span>{tr(product.name)} × {qty}</span>
                 <b>{money(product.price * qty)}</b>
               </div>

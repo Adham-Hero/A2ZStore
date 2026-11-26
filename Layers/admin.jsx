@@ -23,9 +23,11 @@ const tabs = {
 }
 
 const Admin = () => {
-  const { t, setSignInOpen } = useApp()
-  const { user, isStaff } = useStore()
+  const { t } = useApp()
+  const { user, isStaff, ready } = useStore()
   const [tab, setTab] = useState('overview')
+
+  if (!ready) return <div className="container loading" role="status" aria-label={t('common.loading')} />
 
   if (!isStaff) {
     return (
@@ -35,7 +37,7 @@ const Admin = () => {
           {user ? (
             <Link to="/" className="btn btn--primary">{t('nf.home')}</Link>
           ) : (
-            <button className="btn btn--primary" onClick={() => setSignInOpen(true)}>{t('nav.signin')}</button>
+            <Link to="/login?next=/admin" className="btn btn--primary">{t('nav.signin')}</Link>
           )}
         </div>
       </section>

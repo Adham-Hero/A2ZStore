@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useApp } from '../src/AppContext.js'
 import { useStore } from '../src/StoreContext.js'
 import Icon from './Icons.jsx'
+import Photo from './Photo.jsx'
 
 export default function CartDrawer() {
   const { t, tr, money, cartOpen, setCartOpen, notify } = useApp()
@@ -41,9 +42,7 @@ export default function CartDrawer() {
           {cartLines.length === 0 && <p className="muted">{t('cart.empty')}</p>}
           {cartLines.map(({ product, qty }) => (
             <div key={product.id} className="line">
-              <span className="line__icon">
-                {product.image ? <img src={product.image} alt="" /> : product.icon || '🛍️'}
-              </span>
+              <Photo src={product.image} alt="" className="photo-box--thumb" />
               <div className="line__info">
                 <Link to={`/product/${product.id}`} onClick={close}><b>{tr(product.name)}</b></Link>
                 <span>{money(product.price)}</span>

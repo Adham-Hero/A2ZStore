@@ -1,14 +1,18 @@
 import { Link, useParams } from 'react-router-dom'
 import { useApp } from '../src/AppContext.js'
 import { useStore } from '../src/StoreContext.js'
+import CategoryCard from './CategoryCard.jsx'
+import Photo from './Photo.jsx'
 import ProductCard from './prodectscard.jsx'
 
-// /categories      -> page with all categories
+// /categories      -> page with all categories (with their photos)
 // /categories/:id  -> the products of that category
 export default function Caregores() {
   const { id } = useParams()
   const { t, tr } = useApp()
-  const { categories, products } = useStore()
+  const { categories, products, ready } = useStore()
+
+  if (!ready) return <div className="container loading" role="status" aria-label={t('common.loading')} />
 
   if (id) {
     const category = categories.find((c) => c.id === id)
@@ -27,9 +31,13 @@ export default function Caregores() {
       <section className="section">
         <div className="container">
           <Link to="/categories" className="back-link">← {t('categories.all')}</Link>
-          <div className="page-head">
-            <h1>{category.icon} {tr(category.name)}</h1>
-            <p>{list.length} {t('common.items')}</p>
+          <div className="cat-banner">
+            <Photo src={category.image} alt="" className="cat-banner__img" />
+            <span className="cat-banner__shade" />
+            <div className="cat-banner__text">
+              <h1>{tr(category.name)}</h1>
+              <p>{list.length} {t('common.items')}</p>
+            </div>
           </div>
           {list.length === 0 ? (
             <p className="muted">{t('common.noProducts')}</p>
@@ -49,15 +57,7 @@ export default function Caregores() {
           <p>{t('categories.subtitle')}</p>
         </div>
         <div className="cat-grid">
-          {categories.map((c) => (
-            <Link key={c.id} to={`/categories/${c.id}`} className="cat-card">
-              <span className="cat-card__icon">{c.icon}</span>
-              <span className="cat-card__name">{tr(c.name)}</span>
-              <span className="cat-card__cta">
-                {products.filter((p) => p.categoryId === c.id).length} {t('common.items')}
-              </span>
-            </Link>
-          ))}
+          {categories.map((c) => <CategoryCard key={c.id} category={c} />)}
         </div>
       </div>
     </section>

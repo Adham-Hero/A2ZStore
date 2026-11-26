@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useApp } from '../../src/AppContext.js'
 import { useStore } from '../../src/StoreContext.js'
-import { fileToDataUrl } from '../../src/storage.js'
 import { LOW_STOCK } from '../../src/data.js'
 import { isInStock } from '../../src/helpers.js'
+import ImageField from './ImageField.jsx'
+import Photo from '../Photo.jsx'
 
 const blank = (categoryId = '') => ({
-  id: null, categoryId, icon: '🛍️', image: null, available: true,
+  id: null, categoryId, image: '', available: true,
   name: { en: '', ar: '' }, description: { en: '', ar: '' },
   price: '', oldPrice: '', stock: '0',
 })
@@ -16,6 +17,7 @@ export default function AdminProducts() {
   const { products, categories, saveProduct, deleteProduct, saveCategory } = useStore()
   const [draft, setDraft] = useState(null)
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
   const [newCat, setNewCat] = useState(null) // null = closed, string = typing
 
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
@@ -28,41 +30,34 @@ export default function AdminProducts() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const pickPhoto = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    try {
-      set({ image: await fileToDataUrl(file) })
-    } catch {
-      notify(t('err.image'), 'error')
-    }
-    e.target.value = ''
-  }
-
-  const addCategory = () => {
+  const addCategory = async () => {
     if (!newCat?.trim()) return
-    const r = saveCategory({ id: null, icon: '🏷️', name: { en: newCat.trim(), ar: newCat.trim() } })
+    const r = await saveCategory({ id: null, image: '', name: { en: newCat.trim(), ar: newCat.trim() } })
     if (r.ok) {
       set({ categoryId: r.id })
       setNewCat(null)
     } else notify(t(r.error), 'error')
   }
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
-    const r = saveProduct({
+    setBusy(true)
+    const r = await saveProduct({
       ...draft,
       price: Number(draft.price),
       oldPrice: draft.oldPrice === '' ? null : Number(draft.oldPrice),
       stock: Number(draft.stock),
     })
+    setBusy(false)
     if (!r.ok) return setError(t(r.error))
     notify(t('toast.saved'))
     setDraft(null)
   }
 
-  const remove = (p) => {
-    if (window.confirm(t('common.confirmDelete'))) deleteProduct(p.id)
+  const remove = async (p) => {
+    if (!window.confirm(t('common.confirmDelete'))) return
+    const r = await deleteProduct(p.id)
+    if (!r.ok) notify(t(r.error), 'error')
   }
 
   return (
@@ -74,6 +69,8 @@ export default function AdminProducts() {
       {draft && (
         <form className="card form admin__form" onSubmit={submit}>
           <h3>{draft.id ? t('p.edit') : t('p.add')}</h3>
+
+          <ImageField label={t('p.photo')} value={draft.image} onChange={(image) => set({ image })} />
 
           <div className="form__row">
             <label>{t('p.nameEn')}
@@ -127,23 +124,9 @@ export default function AdminProducts() {
             {t('p.available')}
           </label>
 
-          <div className="photo">
-            <div className="photo__preview">
-              {draft.image ? <img src={draft.image} alt="" /> : <span>{draft.icon}</span>}
-            </div>
-            <div>
-              <b>{t('p.photo')}</b>
-              <input type="file" accept="image/*" onChange={pickPhoto} />
-              <small>{t('p.photoHint')}</small>
-              {draft.image && (
-                <button type="button" className="link-btn" onClick={() => set({ image: null })}>{t('p.removePhoto')}</button>
-              )}
-            </div>
-          </div>
-
           {error && <p className="form__error" role="alert">{error}</p>}
           <div className="row-gap">
-            <button className="btn btn--primary" type="submit">{t('common.save')}</button>
+            <button className="btn btn--primary" type="submit" disabled={busy}>{busy ? '…' : t('common.save')}</button>
             <button className="btn btn--outline" type="button" onClick={() => setDraft(null)}>{t('common.cancel')}</button>
           </div>
         </form>
@@ -163,7 +146,7 @@ export default function AdminProducts() {
               const inStock = isInStock(p)
               return (
                 <tr key={p.id}>
-                  <td><span className="thumb">{p.image ? <img src={p.image} alt="" /> : p.icon}</span></td>
+                  <td><Photo src={p.image} alt="" className="photo-box--thumb" /></td>
                   <td><b>{tr(p.name)}</b></td>
                   <td>{cat ? tr(cat.name) : '—'}</td>
                   <td>

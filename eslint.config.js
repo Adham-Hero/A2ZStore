@@ -7,7 +7,9 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
+    // the website (browser)
     files: ['**/*.{js,jsx}'],
+    ignores: ['server/**', 'vite.config.js'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
@@ -17,5 +19,11 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+  },
+  {
+    // the Node.js server and tooling
+    files: ['server/**/*.js', 'vite.config.js'],
+    extends: [js.configs.recommended],
+    languageOptions: { globals: globals.node, sourceType: 'module' },
   },
 ])

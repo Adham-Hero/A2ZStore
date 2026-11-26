@@ -1,5 +1,4 @@
-// Tiny wrapper around localStorage + helpers used by the store.
-// NOTE: this is a front-end "database" for development/demo. For a real shop move it to a server.
+// localStorage helpers (theme, language, cart) + image resizing before upload.
 const PREFIX = 'z2a:'
 
 export function load(key, fallback) {
@@ -16,38 +15,12 @@ export function save(key, value) {
     localStorage.setItem(PREFIX + key, JSON.stringify(value))
     return true
   } catch {
-    return false // storage full or blocked
+    return false
   }
 }
 
-export const uid = (prefix = 'id') =>
-  `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`
-
-// Small non-crypto hash, only used when Web Crypto is unavailable (plain http).
-function cyrb53(str, seed = 0) {
-  let h1 = 0xdeadbeef ^ seed
-  let h2 = 0x41c6ce57 ^ seed
-  for (let i = 0; i < str.length; i++) {
-    const ch = str.charCodeAt(i)
-    h1 = Math.imul(h1 ^ ch, 2654435761)
-    h2 = Math.imul(h2 ^ ch, 1597334677)
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909)
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
-  return 4294967296 * (2097151 & h2) + (h1 >>> 0)
-}
-
-export async function hashPassword(password, salt) {
-  const text = `${salt}:${password}`
-  if (globalThis.crypto?.subtle) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
-  }
-  return 'x' + cyrb53(text).toString(16)
-}
-
-// Reads an image file, shrinks it and returns a small JPEG data URL (keeps localStorage light).
-export function fileToDataUrl(file, max = 800) {
+// Shrinks a photo (max side `max` px) and converts it to JPEG, so uploads stay small and fast.
+export function resizeImage(file, max = 1200) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file)
     const img = new Image()
@@ -61,7 +34,7 @@ export function fileToDataUrl(file, max = 800) {
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
       URL.revokeObjectURL(url)
-      resolve(canvas.toDataURL('image/jpeg', 0.8))
+      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Invalid image'))), 'image/jpeg', 0.85)
     }
     img.onerror = () => {
       URL.revokeObjectURL(url)

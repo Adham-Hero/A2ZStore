@@ -1,17 +1,24 @@
+import { useEffect } from 'react'
 import { useApp } from '../../src/AppContext.js'
 import { useStore } from '../../src/StoreContext.js'
 import { ROLES } from '../../src/data.js'
 
 export default function AdminUsers() {
   const { t, formatDate, notify } = useApp()
-  const { users, user: me, isOwner, setUserRole, deleteUser } = useStore()
+  const { users, user: me, isOwner, setUserRole, deleteUser, refreshUsers } = useStore()
 
-  const changeRole = (u, role) => {
-    const r = setUserRole(u.id, role)
+  useEffect(() => {
+    refreshUsers()
+  }, [refreshUsers])
+
+  const changeRole = async (u, role) => {
+    const r = await setUserRole(u.id, role)
     notify(r.ok ? t('toast.saved') : t(r.error), r.ok ? 'ok' : 'error')
   }
-  const remove = (u) => {
-    if (window.confirm(t('common.confirmDelete'))) deleteUser(u.id)
+  const remove = async (u) => {
+    if (!window.confirm(t('common.confirmDelete'))) return
+    const r = await deleteUser(u.id)
+    if (!r.ok) notify(t(r.error), 'error')
   }
 
   return (

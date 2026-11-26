@@ -146,7 +146,7 @@ const rows = [
   ['err.number', 'Price and stock must be valid numbers.', 'السعر والمخزون يجب أن يكونا أرقامًا صحيحة.'],
   ['err.oldPrice', 'The price before discount must be higher than the price.', 'السعر قبل الخصم يجب أن يكون أعلى من السعر.'],
   ['err.locked', 'This order is cancelled and cannot be changed.', 'هذا الطلب ملغي ولا يمكن تعديله.'],
-  ['err.image', 'Could not read this image.', 'تعذّرت قراءة هذه الصورة.'],
+  ['err.image', 'Please choose a valid JPG, PNG or WebP photo.', 'اختر صورة JPG أو PNG أو WebP صحيحة.'],
 
   // admin
   ['admin.title', 'Dashboard', 'لوحة التحكم'],
@@ -177,7 +177,7 @@ const rows = [
   ['p.stock', 'Quantity in stock', 'الكمية في المخزون'],
   ['p.available', 'Available for sale (untick to mark as out of stock)', 'متاح للبيع (ألغِ التحديد لجعله غير متوفر)'],
   ['p.photo', 'Photo', 'الصورة'],
-  ['p.photoHint', 'Choose a photo (JPG / PNG). It is resized automatically.', 'اختر صورة (JPG / PNG) وسيتم تصغيرها تلقائيًا.'],
+  ['p.photoHint', 'JPG, PNG or WebP. It is resized automatically.', 'JPG أو PNG أو WebP. يتم تصغيرها تلقائيًا.'],
   ['p.removePhoto', 'Remove photo', 'حذف الصورة'],
   ['p.newCat', '+ New category', '+ قسم جديد'],
   ['p.newCatName', 'New category name', 'اسم القسم الجديد'],
@@ -186,7 +186,7 @@ const rows = [
   ['c.edit', 'Edit category', 'تعديل القسم'],
   ['c.nameEn', 'Name (English)', 'الاسم (إنجليزي)'],
   ['c.nameAr', 'Name (Arabic)', 'الاسم (عربي)'],
-  ['c.icon', 'Icon (emoji)', 'أيقونة (إيموجي)'],
+  ['c.photo', 'Category photo', 'صورة القسم'],
   ['c.hasProducts', 'This category still has products. Move or delete them first.', 'هذا القسم به منتجات. انقلها أو احذفها أولًا.'],
   ['o.search', 'Search by order number or customer…', 'ابحث برقم الطلب أو اسم العميل…'],
   ['o.cancelConfirm', 'Cancel this order? Stock will be returned and the order will be locked.', 'إلغاء هذا الطلب؟ سيتم إرجاع المخزون ويصبح الطلب مقفلًا.'],
@@ -202,6 +202,38 @@ const rows = [
   ['u.role.admin', 'Admin', 'مشرف'],
   ['u.role.user', 'User', 'مستخدم'],
   ['u.help', 'Owner: full control, can manage users and roles. Admin: products, categories and orders. User: shops on the website.', 'المالك: تحكم كامل ويدير المستخدمين والأدوار. المشرف: المنتجات والأقسام والطلبات. المستخدم: يتسوق في الموقع.'],
+
+  // welcome / loading / offline
+  ['welcome.to', 'Welcome to', 'أهلًا بك في'],
+  ['welcome.skip', 'Click anywhere to skip', 'اضغط في أي مكان للتخطي'],
+  ['common.loading', 'Loading…', 'جارٍ التحميل…'],
+  ['common.uploading', 'Uploading photo…', 'جارٍ رفع الصورة…'],
+  ['offline.text', 'Cannot reach the server. Check that the Node server and MongoDB are running.', 'تعذّر الاتصال بالسيرفر. تأكد أن سيرفر Node وقاعدة MongoDB شغّالين.'],
+  ['offline.retry', 'Try again', 'حاول مرة أخرى'],
+
+  // sign in / register pages
+  ['auth.loginTitle', 'Welcome back', 'أهلًا بعودتك'],
+  ['auth.loginSub', 'Sign in to check out faster and follow your orders.', 'سجّل الدخول لإتمام الشراء أسرع ومتابعة طلباتك.'],
+  ['auth.registerTitle', 'Create your account', 'أنشئ حسابك'],
+  ['auth.registerSub', 'It takes less than a minute.', 'لن يستغرق أكثر من دقيقة.'],
+  ['auth.noAccount', 'New to Z2A?', 'جديد في Z2A؟'],
+  ['auth.haveAccount', 'Already have an account?', 'لديك حساب بالفعل؟'],
+  ['auth.show', 'Show', 'إظهار'],
+  ['auth.hide', 'Hide', 'إخفاء'],
+  ['auth.invalidEmail', 'Please enter a valid email address.', 'من فضلك أدخل بريدًا إلكترونيًا صحيحًا.'],
+  ['auth.invalidName', 'Please enter your name.', 'من فضلك أدخل اسمك.'],
+  ['auth.side1', 'Track every order in one place', 'تابع كل طلباتك في مكان واحد'],
+  ['auth.side2', 'Faster checkout', 'إتمام شراء أسرع'],
+  ['auth.side3', 'Exclusive offers for members', 'عروض حصرية للأعضاء'],
+
+  // server errors
+  ['err.network', 'Cannot reach the server. Please try again.', 'تعذّر الاتصال بالسيرفر. حاول مرة أخرى.'],
+  ['err.server', 'Something went wrong on the server.', 'حدث خطأ في السيرفر.'],
+  ['err.invalid', 'Some of the information is not valid.', 'بعض البيانات غير صحيحة.'],
+  ['err.notFound', 'Not found.', 'غير موجود.'],
+  ['err.unauthorized', 'Please sign in first.', 'من فضلك سجّل الدخول أولًا.'],
+  ['err.rate', 'Too many attempts. Please wait a few minutes.', 'محاولات كثيرة. انتظر بضع دقائق.'],
+  ['err.imageSize', 'The photo is too large (max 5 MB).', 'الصورة كبيرة جدًا (الحد الأقصى 5 ميجا).'],
 
   // footer / 404
   ['foot.follow', 'Follow us', 'تابعنا'],

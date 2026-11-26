@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useApp } from '../../src/AppContext.js'
 import { useStore } from '../../src/StoreContext.js'
 import { ORDER_STATUSES } from '../../src/data.js'
@@ -6,10 +6,14 @@ import OrderDetails from '../OrderDetails.jsx'
 
 export default function AdminOrders() {
   const { t, money, formatDate, notify } = useApp()
-  const { orders, updateOrderStatus } = useStore()
+  const { orders, updateOrderStatus, refreshOrders } = useStore()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState('all')
   const [open, setOpen] = useState(null)
+
+  useEffect(() => {
+    refreshOrders() // always show the newest orders when the tab opens
+  }, [refreshOrders])
 
   const q = query.trim().toLowerCase()
   const list = orders.filter(
@@ -18,9 +22,9 @@ export default function AdminOrders() {
       (!q || `${o.number} ${o.customer.name} ${o.customer.phone}`.toLowerCase().includes(q)),
   )
 
-  const change = (order, next) => {
+  const change = async (order, next) => {
     if (next === 'cancelled' && !window.confirm(t('o.cancelConfirm'))) return
-    const r = updateOrderStatus(order.id, next)
+    const r = await updateOrderStatus(order.id, next)
     if (!r.ok) notify(t(r.error), 'error')
   }
 

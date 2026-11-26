@@ -5,15 +5,17 @@ import OrderDetails from './OrderDetails.jsx'
 
 // /orders : the orders of the signed-in user
 export default function MyOrders() {
-  const { t, money, formatDate, setSignInOpen } = useApp()
-  const { user, orders } = useStore()
+  const { t, money, formatDate } = useApp()
+  const { user, orders, ready } = useStore()
+
+  if (!ready) return <div className="container loading" role="status" aria-label={t('common.loading')} />
 
   if (!user) {
     return (
       <section className="section">
         <div className="container empty">
           <p>{t('checkout.signinFirst')}</p>
-          <button className="btn btn--primary" onClick={() => setSignInOpen(true)}>{t('nav.signin')}</button>
+          <Link to="/login?next=/orders" className="btn btn--primary">{t('nav.signin')}</Link>
         </div>
       </section>
     )

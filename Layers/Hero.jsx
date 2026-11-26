@@ -1,16 +1,16 @@
 import { Link } from 'react-router-dom'
 import { useApp } from '../src/AppContext.js'
 import { useStore } from '../src/StoreContext.js'
-import Logo from './Logo.jsx'
+import Hero3D from './Hero3D.jsx'
 import Categories from './Categories.jsx'
 import Offers from './Offers.jsx'
 import About from './About.jsx'
 import Contact from './Contact.jsx'
 
 // Home page: hero, categories slider, latest offers, about, contact.
-// (Logo comes from public/Img, font is the San Francisco system stack: see src/index.css)
+// The 3D logo banner is Layers/Hero3D.jsx (built from public/Img/logo-mark.png).
 const Hero = () => {
-  const { t, setSignInOpen } = useApp()
+  const { t } = useApp()
   const { user } = useStore()
 
   return (
@@ -23,15 +23,11 @@ const Hero = () => {
             <p>{t('hero.subtitle')}</p>
             <div className="hero__actions">
               <Link to="/shop" className="btn btn--primary">{t('hero.shop')}</Link>
-              {!user && (
-                <button className="btn btn--outline" onClick={() => setSignInOpen(true)}>
-                  {t('nav.signin')}
-                </button>
-              )}
+              {!user && <Link to="/login" className="btn btn--outline">{t('nav.signin')}</Link>}
             </div>
           </div>
-          <div className="hero__logo" aria-hidden="true">
-            <Logo variant="badge" />
+          <div className="hero__logo">
+            <Hero3D />
           </div>
         </div>
       </section>

@@ -1,0 +1,7 @@
+make the data base working setup and finish the enviroment with node.js to be able to conected it with mongo.db and be ready to lunch the website
+solve the css of the page in the laptop screens and pc because its not showen 
+make animation for the website when it opens saying welcome to z2a in 3d way for few moments
+make the slide bar move alone also automaticly
+and be able to add photos for the catigory and the product insted of icons this is will be applied evrey where on the website
+make a 3d banner or 3d this for the logo at the hero section
+make a seprate page for sign and log in when you click on the button

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../src/AppContext.js'
 import { useStore } from '../src/StoreContext.js'
 import Icon from './Icons.jsx'
@@ -16,9 +16,11 @@ const hashLinks = [
 ]
 
 const Navb = () => {
-  const { t, theme, toggleTheme, toggleLang, setCartOpen, setSignInOpen } = useApp()
+  const { t, theme, toggleTheme, toggleLang, setCartOpen } = useApp()
   const { user, isStaff, logout, cartCount } = useStore()
   const navigate = useNavigate()
+  const { pathname, search } = useLocation()
+  const loginTo = /^\/(login|register)/.test(pathname) || pathname === '/' ? '/login' : `/login?next=${encodeURIComponent(pathname + search)}`
   const [open, setOpen] = useState(false)
   const [menu, setMenu] = useState(false)
   const menuRef = useRef(null)
@@ -94,8 +96,8 @@ const Navb = () => {
                   {isStaff && <button role="menuitem" onClick={() => go('/admin')}>{t('nav.dashboard')}</button>}
                   <button
                     role="menuitem"
-                    onClick={() => {
-                      logout()
+                    onClick={async () => {
+                      await logout()
                       go('/')
                     }}
                   >
@@ -105,10 +107,10 @@ const Navb = () => {
               )}
             </div>
           ) : (
-            <button className="btn btn--primary btn--sm signin-btn" onClick={() => setSignInOpen(true)}>
+            <Link className="btn btn--primary btn--sm signin-btn" to={loginTo}>
               <Icon name="user" size={16} />
               <span className="signin-btn__label">{t('nav.signin')}</span>
-            </button>
+            </Link>
           )}
 
           <button

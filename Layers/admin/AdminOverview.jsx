@@ -1,10 +1,16 @@
+import { useEffect } from 'react'
 import { useApp } from '../../src/AppContext.js'
 import { useStore } from '../../src/StoreContext.js'
 import { LOW_STOCK } from '../../src/data.js'
 
 export default function AdminOverview({ goTo }) {
   const { t, money, formatDate, notify } = useApp()
-  const { products, orders, users, isOwner, resetDemo } = useStore()
+  const { products, orders, users, isOwner, resetDemo, refreshOrders, refreshUsers } = useStore()
+
+  useEffect(() => {
+    refreshOrders()
+    refreshUsers()
+  }, [refreshOrders, refreshUsers])
 
   const low = products.filter((p) => !p.available || p.stock <= LOW_STOCK).length
   const pending = orders.filter((o) => o.status === 'pending').length
@@ -19,9 +25,9 @@ export default function AdminOverview({ goTo }) {
     ['admin.stat.users', users.length, 'users'],
   ]
 
-  const reset = () => {
+  const reset = async () => {
     if (!window.confirm(t('admin.resetConfirm'))) return
-    const r = resetDemo()
+    const r = await resetDemo()
     notify(r.ok ? t('toast.saved') : t(r.error), r.ok ? 'ok' : 'error')
   }
 
